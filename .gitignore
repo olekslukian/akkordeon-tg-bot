@@ -1,3 +1,7 @@
+# Editor files and folders
+/.vs
+/.vscode
+
 # build, object directories
 /bin
 /obj
