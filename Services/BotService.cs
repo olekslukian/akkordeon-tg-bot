@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -17,6 +18,7 @@ public class BotService : IBotService
     };
     private readonly TelegramBotClient _botClient;
 
+
     public BotService(TelegramBotClient? botClient)
     {
         if (botClient == null)
@@ -26,6 +28,7 @@ public class BotService : IBotService
             throw new ArgumentNullException(nameof(botClient));
         }
         _botClient = botClient;
+
     }
 
     public async Task Start()
@@ -92,17 +95,31 @@ public class BotService : IBotService
 
         image.Save(destinationFilePath);
 
-        var hashList = new List<bool>();
+        var hashList =  CreateHashList(image, white);
+
+        return CreateHashString(hashList);
+    }
+
+
+    private static List<bool> CreateHashList(Image<Rgba32> image, Rgba32 white)
+    {
+        var list = new List<bool>();
+
 
         for (int y = 0; y < image.Height; y++)
         {
             for (int x = 0; x < image.Width; x++)
             {
                 bool isWhite = image[x, y] == white;
-                hashList.Add(isWhite);
+                list.Add(isWhite);
             }
         }
 
+        return list;
+    }
+
+    private static string CreateHashString(List<bool> hashList)
+    {
         StringBuilder hashBuilder = new();
 
         for (int i = 0; i < hashList.Count; i += 8)
@@ -125,7 +142,6 @@ public class BotService : IBotService
 
         return hash;
     }
-
 
     private static Task HandlePollingErrorAsync(
         ITelegramBotClient botClient,
